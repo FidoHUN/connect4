@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <script>
+    function init() {
+      var canvas = document.getElementById("mainCanvas");
+      var ctx = canvas.getContext("2d");
+      var cellSize = canvas.height / 8;
+      var turn = 1;
+      let firstPlayerWon = false;
+      let secondPlayerWon = false;
+
+      var data = [
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      ];
+
+      function drawBorad() {
+          // drawing the board
+          ctx.fillStyle = "yellow";
+          ctx.strokeStyle = "lightgray";
+          ctx.lineWidth = 2;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+          // drawing the grid
+          ctx.beginPath();
+          for (let i = 0; i < 8; i++) {
+            ctx.moveTo(0, cellSize * i);
+            ctx.lineTo(canvas.width, cellSize * i);
+          }
+          for (let i = 0; i < 8; i++) {
+            ctx.moveTo(cellSize * i, 0);
+            ctx.lineTo(cellSize * i, canvas.height);
+          }
+          // ctx.moveTo(0, canvas.height / 8);
+          // ctx.lineTo(canvas.width, canvas.height / 8);
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        function render(data) {
+          ctx.strokeStyle = "black";
+          ctx.linewidth = 3;
+
+          for (var i = 0; i < data.length; i++) {
+            for (var j = 0; j < data[i].length; j++) {
+              var value = data[i][j];
+              if (!value) continue;
+
+              switch (value) {
+                case 1:
+                ctx.fillStyle = "red";
+                break;
+
+                case 2:
+                ctx.fillStyle = "green";
+                break;
+              }
+
+              ctx.beginPath();
+              ctx.arc(
+                (j + 0.5) * cellSize,
+                (i + 0.5) * cellSize,
+                cellSize / 2 - 5,
+                0,
+                2 * Math.PI,
+                false
+                );
+              ctx.fill();
+              ctx.stroke();
+            }
+          }
+        }
+
+        function isEmpty(row, column) {
+          return data[row - 1][column - 1] === 0;
+        }
+
+        function isInvalidMove(column) {
+          if (isEmpty(1, column)) {
+            return false;
+          }
+          return true;
+        }
+
+        function drawBullet(color, column) {
+          var bullet;
+          switch (color) {
+            case "red":
+            bullet = 1;
+            break;
+
+            case "green":
+            bullet = 2;
+            break;
+          }
+          if (isInvalidMove(column)) {
+            console.log("Inavalid move...");
+          } else {
+            turn++;
+            for (let i = 8; i > 0; i--) {
+              if (isEmpty(i, column)) {
+                data[i - 1][column - 1] = bullet;
+                break;
+              }
+            }
+          }
+        }
+
+        function winningMove(data) {
+          const COLUMN_COUNT = 8;
+          const ROW_COUNT = 8;
+
+          // check horizontal win
+          for (let c = 0; c < COLUMN_COUNT - 3; c++) {
+            for (let r = 0; r < ROW_COUNT; r++) {
+              if (
+                data[r][c] === 1 &&
+                data[r][c + 1] === 1 &&
+                data[r][c + 2] === 1 &&
+                data[r][c + 3] === 1
+                ) {
+                firstPlayerWon = true;
+              return true;
+            }
+            if (
+              data[r][c] === 2 &&
+              data[r][c + 1] === 2 &&
+              data[r][c + 2] === 2 &&
+              data[r][c + 3] === 2
+              ) {
+              secondPlayerWon = true;
+            return true;
+          }
+        }
+      }
+          // check vertical win
+          for (let c = 0; c < COLUMN_COUNT; c++) {
+            for (let r = 0; r < ROW_COUNT - 3; r++) {
+              if (
+                data[r][c] === 1 &&
+                data[r + 1][c] === 1 &&
+                data[r + 2][c] === 1 &&
+                data[r + 3][c] === 1
+                ) {
+                firstPlayerWon = true;
+              return true;
+            }
+            if (
+              data[r][c] === 2 &&
+              data[r + 1][c] === 2 &&
+              data[r + 2][c] === 2 &&
+              data[r + 3][c] === 2
+              ) {
+              secondPlayerWon = true;
+            return true;
+          }
+        }
+      }
+          // check positive diagonal win
+          for (let c = 0; c < COLUMN_COUNT - 3; c++) {
+            for (let r = 0; r < ROW_COUNT - 3; r++) {
+              if (
+                data[r][c] === 1 &&
+                data[r + 1][c + 1] === 1 &&
+                data[r + 2][c + 2] === 1 &&
+                data[r + 3][c + 3] === 1
+                ) {
+                firstPlayerWon = true;
+              return true;
+            }
+            if (
+              data[r][c] === 2 &&
+              data[r + 1][c + 1] === 2 &&
+              data[r + 2][c + 2] === 2 &&
+              data[r + 3][c + 3] === 2
+              ) {
+              secondPlayerWon = true;
+            return true;
+          }
+        }
+      }
+          // check negative diagonal win
+          for (let c = 0; c < COLUMN_COUNT - 3; c++) {
+            for (let r = 3; r < ROW_COUNT; r++) {
+              if (
+                data[r][c] === 1 &&
+                data[r - 1][c + 1] === 1 &&
+                data[r - 2][c + 2] === 1 &&
+                data[r - 3][c + 3] === 1
+                ) {
+                firstPlayerWon = true;
+              return true;
+            }
+            if (
+              data[r][c] === 2 &&
+              data[r - 1][c + 1] === 2 &&
+              data[r - 2][c + 2] === 2 &&
+              data[r - 3][c + 3] === 2
+              ) {
+              secondPlayerWon = true;
+            return true;
+          }
+        }
+      }
+    }
+
+        // start the game
+        firstPlayerWon = false;
+        secondPlayerWon = false;
+        drawBorad();
+        render(data);
+        canvas.addEventListener("click", function (e) {
+          if (e.pageX > 1 && e.pageX < 49) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 1);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 1);
+              render(data);
+            }
+          } else if (e.pageX > 51 && e.pageX < 99) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 2);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 2);
+              render(data);
+            }
+          } else if (e.pageX > 101 && e.pageX < 149) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 3);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 3);
+              render(data);
+            }
+          } else if (e.pageX > 151 && e.pageX < 199) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 4);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 4);
+              render(data);
+            }
+          } else if (e.pageX > 201 && e.pageX < 249) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 5);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 5);
+              render(data);
+            }
+          } else if (e.pageX > 251 && e.pageX < 299) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 6);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 6);
+              render(data);
+            }
+          } else if (e.pageX > 301 && e.pageX < 349) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 7);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 7);
+              render(data);
+            }
+          } else if (e.pageX > 351 && e.pageX < 399) {
+            if (turn % 2 === 1) {
+              drawBullet("red", 8);
+              render(data);
+            } else if (turn % 2 === 0) {
+              drawBullet("green", 8);
+              render(data);
+            }
+          }
+          setTimeout(function () {
+            if (winningMove(data)) {
+              if (firstPlayerWon) {
+                window.alert("Game Over! RED player won! Congrats!");
+                window.location.reload();
+              } else if (secondPlayerWon) {
+                window.alert("Game Over! GREEN player won! Congrats!");
+                window.location.reload();
+              }
+            }
+          }, 100);
+        });
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <canvas id="mainCanvas" width="400px" height="400px"></canvas>
+  </body>
+  </html>

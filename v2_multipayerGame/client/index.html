@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        /* Disables pull-to-refresh but allows overscroll glow effects. */
+        overscroll-behavior-y: contain;
+      }
+    </style>
+    <script>
+      function init() {
+        var canvas = document.getElementById("mainCanvas");
+        var ctx = canvas.getContext("2d");
+        var cellSize = canvas.height / 8;
+
+        function drawBorad() {
+          // drawing the board
+          ctx.fillStyle = "yellow";
+          ctx.strokeStyle = "lightgray";
+          ctx.lineWidth = 2;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+          // drawing the grid
+          ctx.beginPath();
+          for (let i = 0; i < 8; i++) {
+            ctx.moveTo(0, cellSize * i);
+            ctx.lineTo(canvas.width, cellSize * i);
+          }
+          for (let i = 0; i < 8; i++) {
+            ctx.moveTo(cellSize * i, 0);
+            ctx.lineTo(cellSize * i, canvas.height);
+          }
+          // ctx.moveTo(0, canvas.height / 8);
+          // ctx.lineTo(canvas.width, canvas.height / 8);
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        // draw the board
+        drawBorad();
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <canvas id="mainCanvas" width="400px" height="400px"></canvas>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="src/client.js"></script>
+  </body>
+</html>
