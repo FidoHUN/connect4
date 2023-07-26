@@ -257,7 +257,9 @@
         drawBorad();
         render(data);
         canvas.addEventListener("click", function (e) {
+          let validCoordinate = false;
           if (e.pageX > 1 && e.pageX < 49) {
+            validCoordinate = true;
           	if(!isInvalidMove(1)){
               	drawBullet("red", 1, data);
               	render(data);
@@ -265,6 +267,7 @@
             	invalidMove = true;	
             }
           } else if (e.pageX > 51 && e.pageX < 99) {
+            validCoordinate = true;
           	if(!isInvalidMove(2)){
               	drawBullet("red", 2, data);
               	render(data);
@@ -272,6 +275,7 @@
             	invalidMove = true;
             }
           } else if (e.pageX > 101 && e.pageX < 149) {
+            validCoordinate = true;
           	if(!isInvalidMove(3)){
               	drawBullet("red", 3, data);
               	render(data);
@@ -279,6 +283,7 @@
             	invalidMove = true;
             }
           } else if (e.pageX > 151 && e.pageX < 199) {
+            validCoordinate = true;
           	if(!isInvalidMove(4)){
               	drawBullet("red", 4, data);
               	render(data);
@@ -286,6 +291,7 @@
             	invalidMove = true;
             }
           } else if (e.pageX > 201 && e.pageX < 249) {
+            validCoordinate = true;
           	if(!isInvalidMove(5)){
               	drawBullet("red", 5, data);
               	render(data);
@@ -293,6 +299,7 @@
             	invalidMove = true;
             }
           } else if (e.pageX > 251 && e.pageX < 299) {
+            validCoordinate = true;
           	if(!isInvalidMove(6)){
               	drawBullet("red", 6, data);
               	render(data);
@@ -300,6 +307,7 @@
             	invalidMove = true;
             }
           } else if (e.pageX > 301 && e.pageX < 349) {
+            validCoordinate = true;
           	if(!isInvalidMove(7)){
               	drawBullet("red", 7, data);
               	render(data);
@@ -307,12 +315,16 @@
             	invalidMove = true;
             }
           } else if (e.pageX > 351 && e.pageX < 399) {
+            validCoordinate = true;
           	if(!isInvalidMove(8)){
               	drawBullet("red", 8, data);
               	render(data);
             }else{
             	invalidMove = true;
             }
+          }
+          if(!validCoordinate){
+            invalidMove = true;
           }
           setTimeout(function () {
             if (winningMove(data)) {

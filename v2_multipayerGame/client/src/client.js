@@ -15,10 +15,11 @@ var board = [
   [0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-var turn;
+var turn = 0;
 let moved = false;
 let firstPlayerWon = false;
 let secondPlayerWon = false;
+let canMove = true;
 
 function render(board) {
   ctx.strokeStyle = "black";
@@ -188,79 +189,65 @@ function winningMove(board) {
 }
 
 function game(e) {
+  let clientId = sock.id;
   if (e.pageX > 1 && e.pageX < 49 && !isInvalidMove(1)) {
     if (turn % 2 === 1) {
       drawBullet("red", 1);
     } else {
       drawBullet("green", 1);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 51 && e.pageX < 99 && !isInvalidMove(2)) {
     if (turn % 2 === 1) {
       drawBullet("red", 2);
     } else {
       drawBullet("green", 2);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 101 && e.pageX < 149 && !isInvalidMove(3)) {
     if (turn % 2 === 1) {
       drawBullet("red", 3);
     } else {
       drawBullet("green", 3);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 151 && e.pageX < 199 && !isInvalidMove(4)) {
     if (turn % 2 === 1) {
       drawBullet("red", 4);
     } else {
       drawBullet("green", 4);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 201 && e.pageX < 249 && !isInvalidMove(5)) {
     if (turn % 2 === 1) {
       drawBullet("red", 5);
     } else {
       drawBullet("green", 5);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 251 && e.pageX < 299 && !isInvalidMove(6)) {
     if (turn % 2 === 1) {
       drawBullet("red", 6);
     } else {
       drawBullet("green", 6);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 301 && e.pageX < 349 && !isInvalidMove(7)) {
     if (turn % 2 === 1) {
       drawBullet("red", 7);
     } else {
       drawBullet("green", 7);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   } else if (e.pageX > 351 && e.pageX < 399  && !isInvalidMove(8)) {
     if (turn % 2 === 1) {
       drawBullet("red", 8);
     } else {
       drawBullet("green", 8);
     }
-    render(board);
-    sock.emit("message", board, turn); // Sending the board state to the server
-    canvas.removeEventListener("click", game);
+    sock.emit("moved", clientId);
   }
+  sock.emit("message", board, turn); // Sending the board state to the server
 }
 
 // start the game
@@ -272,25 +259,47 @@ sock.on("message", (board, turn) => {
   this.turn = turn;
   render(board);
 
-  canvas.addEventListener("click", game);
-
   setTimeout(function () {
     if (winningMove(board)) {
-      // disable click event on both client
-      // tell the server that the game ended
       sock.emit("end");
     }
   }, 100);
 });
 
+sock.on("checkPermission", (cantMove) => {
+  if(cantMove.length > 0 && cantMove[0] === sock.id){
+    document.removeEventListener("click", game);
+  }else{
+    document.addEventListener("click", game);
+  }
+});
+
+sock.on("message2", (board,turn) => {
+  render(board);
+});
+
+sock.on("enableClick", ()=>{
+  document.addEventListener("click",game);
+});
+
 sock.on("end", () => {
-	swal ( "Játék vége" ,  "" ,  "warning" );
+	swal ( "Játék vége!" ,  "" ,  "warning" );
  	let okBtn = document.querySelector(".swal-overlay");
  	okBtn.addEventListener("click", function(){
- 		sock.emit("reload");
+ 		sock.emit("resetBoard");
  	});
 });
 
-sock.on("reload", ()=>{
-	window.location.reload();
+sock.on("reloadPlayer", ()=>{
+  sock.disconnect();
+  setTimeout(function(){
+    window.location.reload();
+  }, 2000);
+})
+
+sock.on("reloadSpectator", ()=>{
+  sock.disconnect();
+  setTimeout(function(){
+    window.location.reload();
+  }, 4000);
 })

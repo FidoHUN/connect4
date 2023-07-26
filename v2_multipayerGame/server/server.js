@@ -8,7 +8,9 @@ const server = http.createServer(app);
 
 const io = socketio(server);
 
-var board = [
+let cantMove = [];
+
+var currentBoard = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
@@ -27,27 +29,53 @@ console.log(`Serving static from ${clientPath}`);
 app.use(express.static(clientPath));
 
 io.on("connection", (sock) => {
-  console.log("A user is connected!");
+  const userCount = io.engine.clientsCount;
+  if(userCount > 2){
+    sock.join("spectator");
+  }else{
+    sock.join("player");
+  }
+  console.log(userCount)
+  io.to("spectator").emit("message2", currentBoard,turn);
 
-  // send the initial board state to every client
-  io.emit("message", board, turn);
+  io.to("player").emit("checkPermission", cantMove);
 
   // If we recieve the board state from a client
   sock.on("message", (board, turn) => {
-  	sock.broadcast.emit("message", board, turn);
+    currentBoard = board;
+  	io.to("player").emit("message", currentBoard, turn);
+    io.to("spectator").emit("message2", currentBoard,turn);
+    if(sock.rooms.has("spectator")){
+      turn++;
+    }
     // Sending the board state to every client who is connected
+    io.to("player").emit("checkPermission", cantMove);
   });
+  
 
   sock.on("end", () => {
-    io.emit("end");
+    io.to("player").emit("end");
   });
 
-  sock.on("reload", ()=>{
-  	io.emit("reload");
-  })
+  sock.on("moved", (clientId) => {
+    cantMove = [];
+    cantMove.push(clientId);
+  });
 
-  sock.on("dissconnect", () => {
-    console.log("A user is disconnected");
+  sock.on("resetBoard", ()=>{
+    currentBoard = [
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+    ];
+    io.to("player").emit("reloadPlayer");
+    io.to("spectator").emit("reloadSpectator");
+    console.log("----------------");
   });
 });
 
